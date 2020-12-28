@@ -26,3 +26,11 @@
     * pie chart -- % of investment
 
 # manually reconsile until have loose()-- is likely LTC on some other exchange
+
+# To run locally
+```
+export FLASK_APP=hello.py
+export FLASK_ENV=development
+flask run
+```
+# to package as an imaage
