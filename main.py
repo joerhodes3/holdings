@@ -1,9 +1,19 @@
 from flask import Flask
+#from flask_graphql import GraphQLView
+#from graphene import Schema
+from flask_cors import CORS
+from healthcheck import HealthCheck
+
+
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
+
+HealthCheck(app, "/health")
 
 #GET
 @app.route('/about/')
@@ -41,7 +51,7 @@ def input(input_format):
 #POST
 @app.route('/adjust/<string:action>')
 def adjust(action):
-    # TODO: GIVE / GET as gift -- payment
+    # TODO: GIVE / GET as gift -- payment or deduction
     if action == 'BUY':
         #updates HAVE[]
         return 'Buy [symbol, date, price, quantity]'
@@ -56,9 +66,13 @@ def adjust(action):
         # just like SELL, but no INCOME[] -- short or long
         return 'Lose [symbol, date, price, quantity]'
     elif action == 'SHOW':
+        # flat display of everything held and sold (with id)
         return 'Show'
+    elif action == 'UPDATE':
+        # commit notes to a spefic id (in HAVE or SOLD)
+        return 'Update a given id -- used to put NOTES'
     else:
-        return 'unknown action, I only know howto: BUY,SELL,LOSE,SHOW'
+        return 'unknown action, I only know howto: BUY,SELL,LOSE,SHOW,UPDATE,GET,GIVE'
 
 #GET -or- GraphQL
 @app.route('/analyze/')
