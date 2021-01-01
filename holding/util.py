@@ -1,4 +1,5 @@
 import csv, json
+from collections import OrderedDict
 
 from io import StringIO, BytesIO
 # StringIO to pass around CSV, BytesIO to write xlsx
@@ -18,23 +19,18 @@ def make_json(csv_stream, json_string):
       
     # create a dictionary 
     if json_string == None:
-        data = {}
+        data = []
     else:
         data = json_string
 
-    lines = csv_stream.getvalue()
-    print(lines)
-
-    reader = csv.reader(csv_stream)
-    print(reader)
-    next(reader) # skip header
-    data = []
+    #without heder
+    #reader = list(csv.reader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
+    #with header
+    reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
     for row in reader:
         data.append(row)
 
-    print(data)
-  
-    ###return json.dumps(csv_dict)
+    return json.dumps(data)
 
 # tansactions (json.dumps(CSV) into BUY/SELL orders to be processed)
 
