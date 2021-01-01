@@ -53,3 +53,19 @@ class sold(Base):
     was_purchased_on = Column(String)
     was_held_on = Column(String)
 
+class tax(Base):
+    """ SQLAlchemy Model for Assests sold after being held fo more than 1yr """
+
+    __tablename__ = "sold"
+    id = Column(Integer, primary_key=True)
+  
+    # will need some routine at commit to make sure onl legal symbols get in
+    amount = Column(String(10))
+
+    # based on matching symbol find date/price
+    sybmol = Column(String(10))
+    date = Column(DateTime, default=datetime.utcnow)
+    total_price_bought = Column(Float, default=0.0)
+ 
+    # notes to help me
+    place_paying_interest = Column(String)

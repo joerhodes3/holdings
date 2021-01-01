@@ -71,8 +71,11 @@ def adjust(action):
     elif action == 'UPDATE':
         # commit notes to a spefic id (in HAVE or SOLD)
         return 'Update a given id -- used to put NOTES'
-    else:
-        return 'unknown action, I only know howto: BUY,SELL,LOSE,SHOW,UPDATE,GET,GIVE'
+     elif action == 'STAKE':
+        # interest  -- like buy with current cot basis + instant tax liability
+        return 'Update a given id -- used to put NOTES'
+   else:
+        return 'unknown action, I only know howto: BUY,SELL,STAKE,LOSE,SHOW,UPDATE,GET,GIVE'
 
 #GET -or- GraphQL
 @app.route('/analyze/')
