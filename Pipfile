@@ -45,12 +45,9 @@ Flask-GraphQL-Auth = "==1.3.0"
 Flask-Cors = "==3.0.8"
 Flask-SQLAlchemy = "==2.4.3"
 coverage = "==5.2"
-pytest = "5.4.3"
-pytest-cov = "2.10.0"
-
-#db access
-#pymongo = "==3.7.2"
-########psycopg2-binary = "==2.8.5"
+pytest = "==5.4.3"
+pytest-cov = "==2.10.0"
+openpyxl ="==3.0.5"
 
 ## talk to xls direcly, does csv already -- use read_csv in "pandas"!!!
 #pandas = "==0.24.1"
