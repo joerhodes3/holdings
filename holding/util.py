@@ -12,12 +12,20 @@ from openpyxl import Workbook
 # upload CSV and open (pass csv_have, csv_short=None, csv_long=None)
 #    json_have = make_json(csv_have, None)
 #    json_temp = make_json(csv_short, None)
-#    json_sell = make_json(csv_short, json_temp)
+#    json_sell = make_json(csv_long, json_temp)
 
 # file object (BytesIO) of CSV with headers to JSON string to be stored -- import/ uses this JSON or POST as a record of holdings
+'''
+in:
+  - StringIO -- a CSV with a header -- file in memory
+  - a list of dictionaries (JSON object) to start with
+  
+out:
+  - a string that is a list of dictioaries -- JSON object
+'''
 def make_json(csv_stream, json_string): 
       
-    # create a dictionary 
+    # create a list
     if json_string == None:
         data = []
     else:
@@ -30,9 +38,10 @@ def make_json(csv_stream, json_string):
     for row in reader:
         data.append(row)
 
+    # lit of dictionaries
     return json.dumps(data)
 
-# tansactions (json.dumps(CSV) into BUY/SELL orders to be processed)
+# tansactions (json.dumps(CSV) into orders to be processed)
 
 
 
@@ -40,11 +49,11 @@ def make_json(csv_stream, json_string):
 
 if __name__ == "__main__":
     # execute only if run as a script
+
     csv_have = "fruit,amount\napple,1\npeach,2"
-    print(csv_have)
-    print()
     g = StringIO()
     for row in csv_have.splitlines():
         g.write(row)
         g.write("\n")
-    print(make_json(g, None))
+    print(make_json(g, [{"foo": "bar"},{"baz": "xxx"}]))
+    #[{"foo": "bar"}, {"baz": "xxx"}, {"fruit": "apple", "amount": "1"}, {"fruit": "peach", "amount": "2"}]
