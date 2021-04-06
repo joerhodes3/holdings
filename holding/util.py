@@ -5,55 +5,72 @@ from io import StringIO, BytesIO
 # StringIO to pass around CSV, BytesIO to write xlsx
 #f = open("myfile.txt", "r", encoding="utf-8")
 
-from openpyxl import Workbook
-
-# upload xlsx and split into 3 csv
-
-# upload CSV and open (pass csv_have, csv_short=None, csv_long=None)
-#    json_have = make_json(csv_have, None)
-#    json_temp = make_json(csv_short, None)
-#    json_sell = make_json(csv_long, json_temp)
-
-# file object (BytesIO) of CSV with headers to JSON string to be stored -- import/ uses this JSON or POST as a record of holdings
+# prarse incoming csv into series of [operations]
+#  - have is jst a series of buy
+#  - a given year -- say 2020 -- can "have buy, sell, interest, lose"
+#    + a "buy" seaches for right to store in [assest] -- built in OOP
+#    + a sell remove bought item[s] from [asset] and makes an [event] line
+#    + interset is an [event] and a "buy"
+#    + lose is a "sell" for $0
+#  - seperate long / short into a "buy and sell" for each line
+# !! if excange is NULL, then use "COINBASE"
 '''
 in:
   - StringIO -- a CSV with a header -- file in memory
-  - a list of dictionaries (JSON object) to start with
+  - howto parse file into ops (header_style)
   
 out:
-  - a string that is a list of dictioaries -- JSON object
+  - a list of operations in JSON format
 '''
-def make_json(csv_stream, json_string): 
+def csv_to_operations(csv_stream, header_style): 
       
     # create a list
-    if json_string == None:
+    if header_style == 1:
+        data = []
+    elif header_style == 2:
         data = []
     else:
-        data = json_string
+        print('Error unknown input format')
+        exit 0
 
     #without heder
     #reader = list(csv.reader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
     #with header
     reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
     for row in reader:
-        data.append(row)
+        # TODO: -- logic here -- process [row] into one or more [operations]
+        data.append(operations)
 
-    # lit of dictionaries
+    # list of operations in JSON format
     return json.dumps(data)
 
-# tansactions (json.dumps(CSV) into orders to be processed)
 
 
 
-##### returns JSON objects for processing
+
+# TODO: process operations into [assets] -- stuff held -- and in [event] log to report
+
+
+
+
+
+# TODO: output reports to files
+
+
+
+
+# TODO: save in db / recall from db -- only [assets]?, put in OOP?
+
+
+
 
 if __name__ == "__main__":
-    # execute only if run as a script
+    # execute only if run as a script -- is a test
 
-    csv_have = "fruit,amount\napple,1\npeach,2"
+    csv_have = "????"
     g = StringIO()
     for row in csv_have.splitlines():
         g.write(row)
         g.write("\n")
-    print(make_json(g, [{"foo": "bar"},{"baz": "xxx"}]))
-    #[{"foo": "bar"}, {"baz": "xxx"}, {"fruit": "apple", "amount": "1"}, {"fruit": "peach", "amount": "2"}]
+    print(csv_to_operations(g))
+    #??? expectation ???
