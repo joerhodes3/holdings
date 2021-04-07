@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 
 class assests():
@@ -6,6 +6,8 @@ class assests():
         # dict of list of dict
         # {asset:[{buy}, {buy, {buy}], ... }
         self.stuff = {}
+        # event is a list of dict -- one or more things happened
+        event = []
 
     def buy(self,Date,Operation,Asset,Amount,Price,Exchange):
         transaction = {"date_bought": Date, "amount_bought": Amount, "price_bought": Price, "exchange_bought": Exchange}
@@ -31,8 +33,11 @@ class assests():
         self.stuff[Asset] = []
         self.stuff[Asset].append(transaction)
 
+    transaction.extend({"asset": Asset, "action": "BUY"})
+    self.event.append(transation)
+
     def sell(self,Date,Operation,Asset,Amount,Price,Exchange):
-        
+        # event is a list of dict -- one or more
         event = []
         event.append({"date_sold": Date, "amount_sold": Amount, "price_sold": Price, "exchange_sold": Exchange})
         if Asset in self.stuff:
@@ -51,4 +56,4 @@ class assests():
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
 
-    # TODO: load/store to ineract with db through models
+    # TODO: load/store to ineract with db through models -- .save()
