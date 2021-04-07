@@ -7,7 +7,7 @@ class assests():
         # {asset:[{buy}, {buy, {buy}], ... }
         self.stuff = {}
         # event is a list of dict -- one or more things happened
-        event = []
+        self.event = []
 
     def buy(self,Date,Operation,Asset,Amount,Price,Exchange):
         transaction = {"date_bought": Date, "amount_bought": Amount, "price_bought": Price, "exchange_bought": Exchange}
@@ -39,7 +39,8 @@ class assests():
     def sell(self,Date,Operation,Asset,Amount,Price,Exchange):
         # event is a list of dict -- one or more
         event = []
-        event.append({"date_sold": Date, "amount_sold": Amount, "price_sold": Price, "exchange_sold": Exchange})
+        event.append({"date_sold": Date, "exchange_sold": Exchange})
+        price_per_item_sold = Price / Amount
         if Asset in self.stuff:
             # founnd asset
             bought_list = self.stuff[Asset]
@@ -47,9 +48,31 @@ class assests():
             total = Amount
             for item in bought_list and total != 0:
                 if total >= item.amount_bought:
-                    # item needs to be removed totally !! & update [event] !!
+                    # item needs to be removed totally & update [event]
+                    total -= item.amount_bought
+                    self.stuff[Asset].pop(0)
+
+                    new_price = price_per_item_sold * item.amount_bought
+                    event[event_index].extend({"asset": Asset, "action": "SELL"},{"amount_sold": item.amount_bought, "price_sold": new_price},item)
+                    event_index += 1
+                    if total != 0:
+                        # not Done, prepare next event
                 else:
-                    # item just needs adjusting !! & update [event] !!
+                    # item just needs adjusting & update [event]
+                    old_price = self.stuff[Asset].price_bought
+                    old_amount = self.stuff[Asset].amount_bought
+                    new_amount = old_amount - total
+                    new_price = (old_price / old_amount) * new_amount
+                    total_sold = total
+                    total_price = (old_price / old_amount) * total_sold
+                    total = 0
+                    self.stuff[Asset].price_bought = new_price
+                    self.stuff[Asset].amount_bought = new_amount
+
+                    event[event_index].extend({"asset": Asset, "action": "SELL"},{"amount_sold": total_sold, "price_sold": price_sold},item)
+                    event_index += 1
+
+            self.event.append(event)
             if total != 0:
                 print("Error -- more to be sold than have")
        else:
