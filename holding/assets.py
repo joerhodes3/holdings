@@ -23,7 +23,7 @@ class assests():
             # if never <, then transaction is earliest
             if not inserted:
                 buy_list.insert(transaction, 0)
-                
+
             # save updated list with new transaction
             self.stuff[Asset] = buy_list
     else:
@@ -32,10 +32,22 @@ class assests():
         self.stuff[Asset].append(transaction)
 
     def sell(self,Date,Operation,Asset,Amount,Price,Exchange):
-        event = {"date_sold": Date, "amount_sold": Amount, "price_sold": Price, "exchange_sold": Exchange}
+        
+        event = []
+        event.append({"date_sold": Date, "amount_sold": Amount, "price_sold": Price, "exchange_sold": Exchange})
         if Asset in self.stuff:
-            # TODO: founnd it
-        else:
+            # founnd asset
+            bought_list = self.stuff[Asset]
+            event_index = 0
+            total = Amount
+            for item in bought_list and total != 0:
+                if total >= item.amount_bought:
+                    # item needs to be removed totally !! & update [event] !!
+                else:
+                    # item just needs adjusting !! & update [event] !!
+            if total != 0:
+                print("Error -- more to be sold than have")
+       else:
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
 
