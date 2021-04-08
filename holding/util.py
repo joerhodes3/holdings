@@ -29,15 +29,16 @@ def csv_to_events(csv_stream, header_style):
     if header_style == "have":
         things = asset_items()
         #with header -- Date,Operation,Asset,Amount,Price,Exchange
-        reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
+        reader = csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n')
         for row in reader:
             # go through each row in have csv and procees as BUY
-            temp_date_object = row.Date ####date(row.Date)
-            things.buy(temp_date_object,row.Asset,row.Amount,row.Price,row.Exchange)
-            if row.Operation != "HAVE":
+            temp_date_object = row["Date"] ####date(row.Date)
+            things.buy(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
+            if row["Operation"] != "HAVE":
                 print("Bad opperand")
+        print("------assets------"+json.dumps(things.stuff))
         # dump out all BUY events in JSON
-        return json.dumps(thing.event)
+        return json.dumps(things.event)
         # TODO: save() to db
     elif header_style == "year":
         # load things (have) and do stuff (sell,interest,lose)
@@ -79,7 +80,6 @@ if __name__ == "__main__":
     for row in csv_have.readlines():
         g.write(row)
         g.write("\n")
-        print(row)
-    print("------------")
-    print(csv_to_events(g, "have"))
+    csv_have.close()
+    print("-----events------"+csv_to_events(g, "have"))
     #??? expectation ???
