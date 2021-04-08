@@ -1,7 +1,10 @@
 import csv, json
-from collections import OrderedDict
-
 from io import StringIO, BytesIO
+from datetime import date
+
+from assets import asset_items
+
+
 # StringIO to pass around CSV, BytesIO to write xlsx
 #f = open("myfile.txt", "r", encoding="utf-8")
 
@@ -22,28 +25,32 @@ in:
 out:
   - a list of operations in JSON format
 '''
-def csv_to_operations(csv_stream, header_style): 
-      
-    # create a list
-    if header_style == 1:
-        data = []
-    elif header_style == 2:
-        data = []
+def csv_to_events(csv_stream, header_style):
+    if header_style == "have":
+        things = asset_items()
+        #with header -- Date,Operation,Asset,Amount,Price,Exchange
+        reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
+        for row in reader:
+            # go through each row in have csv and procees as BUY
+            temp_date_object = row.Date ####date(row.Date)
+            things.buy(temp_date_object,row.Asset,row.Amount,row.Price,row.Exchange)
+            if row.Operation != "HAVE":
+                print("Bad opperand")
+        # dump out all BUY events in JSON
+        return json.dumps(thing.event)
+        # TODO: save() to db
+    elif header_style == "year":
+        # load things (have) and do stuff (sell,interest,lose)
+        pass
+    elif header_type == "long":
+        # expect odd format and unwind into buy/sell events
+        pass
+    elif header_type == "short":
+        # expect odd format and unwind into buy/sell events
+        pass
     else:
         print('Error unknown input format')
-        exit 0
-
-    #without heder
-    #reader = list(csv.reader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
-    #with header
-    reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
-    for row in reader:
-        # TODO: -- logic here -- process [row] into one or more [operations]
-        data.append(operations)
-
-    # list of operations in JSON format
-    return json.dumps(data)
-
+        exit(0)
 
 
 
@@ -65,12 +72,14 @@ def csv_to_operations(csv_stream, header_style):
 
 
 if __name__ == "__main__":
-    # execute only if run as a script -- is a test
+    # execute only if run as a script -- is like a test
 
-    csv_have = "????"
+    csv_have = open("csv/have.csv", "r", encoding="utf-8")
     g = StringIO()
-    for row in csv_have.splitlines():
+    for row in csv_have.readlines():
         g.write(row)
         g.write("\n")
-    print(csv_to_operations(g))
+        print(row)
+    print("------------")
+    print(csv_to_events(g, "have"))
     #??? expectation ???

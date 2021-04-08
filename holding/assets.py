@@ -1,7 +1,9 @@
 from datetime import date
 
+#from models import ....
 
-class assests():
+
+class asset_items():
     def __init__(self):
         # dict of list of dict
         # {asset:[{buy}, {buy, {buy}], ... }
@@ -9,7 +11,7 @@ class assests():
         # event is a list of dict -- one or more things happened
         self.event = []
 
-    def buy(self,Date,Operation,Asset,Amount,Price,Exchange):
+    def buy(self,Date,Asset,Amount,Price,Exchange):
         transaction = {"date_bought": Date, "amount_bought": Amount, "price_bought": Price, "exchange_bought": Exchange}
         if Asset in self.stuff:
             # asset exists -- sort by purchase date to make FIFO
@@ -28,15 +30,15 @@ class assests():
 
             # save updated list with new transaction
             self.stuff[Asset] = buy_list
-    else:
-        # first asset of that type
-        self.stuff[Asset] = []
-        self.stuff[Asset].append(transaction)
+        else:
+            # first asset of that type
+            self.stuff[Asset] = []
+            self.stuff[Asset].append(transaction)
+    
+        transaction.extend({"asset": Asset, "action": "BUY"})
+        self.event.append(transation)
 
-    transaction.extend({"asset": Asset, "action": "BUY"})
-    self.event.append(transation)
-
-    def sell(self,Date,Operation,Asset,Amount,Price,Exchange):
+    def sell(self,Date,Asset,Amount,Price,Exchange):
         # event is a list of dict -- one or more
         event = []
         event.append({"date_sold": Date, "exchange_sold": Exchange})
@@ -53,10 +55,11 @@ class assests():
                     self.stuff[Asset].pop(0)
 
                     new_price = price_per_item_sold * item.amount_bought
-                    event[event_index].extend({"asset": Asset, "action": "SELL"},{"amount_sold": item.amount_bought, "price_sold": new_price},item)
+                    event[event_index].extend({"asset": Asset, "action": "SELL"},{"amount_sold": item.amount_bought, "price_sold": new_price},{"term": "short"}, item)
                     event_index += 1
                     if total != 0:
                         # not Done, prepare next event
+                        event.append({"date_sold": Date, "exchange_sold": Exchange})
                 else:
                     # item just needs adjusting & update [event]
                     old_price = self.stuff[Asset].price_bought
@@ -69,13 +72,13 @@ class assests():
                     self.stuff[Asset].price_bought = new_price
                     self.stuff[Asset].amount_bought = new_amount
 
-                    event[event_index].extend({"asset": Asset, "action": "SELL"},{"amount_sold": total_sold, "price_sold": price_sold},item)
+                    event[event_index].extend({"asset": Asset, "action": "SELL"},{"amount_sold": total_sold, "price_sold": price_sold},{"term": "short"},item)
                     event_index += 1
 
-            self.event.append(event)
+                    self.event.append(event)
             if total != 0:
                 print("Error -- more to be sold than have")
-       else:
+        else:
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
 

@@ -1,0 +1,47 @@
+....use a list instead of an ordered dict in collections
+( a,([](),...()]), b([(),...()]) )
+
+
+---------
+read in csv
+if col[2] in asset:
+  then add/prepend item[price], item[amt],item[date] based on [date]  -- is sorting
+else:
+  add to assest
+.....items is a list() of dict(), in the assets dict()
+
+
+-------
+import csv, datetime
+
+def parser(csv_file):
+    # empty data structures
+    assets = dict()
+    items = list()
+    
+    #!!read line from have.csv
+    open(csv_file,r)
+    for :
+      if csv_assest in aseets:
+        # delete this from assets dictionary and create new items list
+        del assets[csv_asset]
+        # this asset has already been encountered, sort() element and place in items
+        index = 0
+        for x in items:
+          if x['date'] < csv_date:
+            index += 1
+          else:
+            #insert in items  -- usually at end
+            items.insert(index, {'date': csv_date, 'amount': csv_amount, 'cost': csv_cost}) # what about an action???
+            #!!am done break out of loop -- continue???
+      else:
+        # first occurance of this asset
+        items.append({'date': csv_date, 'amount': csv_amount, 'cost': csv_cost}) # what about an action???
+        
+      #always put items in assets
+      assests.upadate({csv_asset: items})
+      
+      return assets
+
+#what all I have, or stuff to be done
+print(parser('have.csv'))
