@@ -1,6 +1,6 @@
 ﻿Date,Operation,Asset,Amount,Price,Exchange
-12-31-2020,INEREST,ADA,413.113160,125.80,ledger (yaroi)
-12-31-2020,BUY,ADA,413.113160,125.80,ledger (yaroi)
+12-31-2020,INEREST,ADA,413.113160,125.80,ledger
+12-31-2020,BUY,ADA,413.113160,125.80,ledger
 12-16-202,BUY,LTC,7,565.19,crypto.com
 12-16-202,BUY,ADA,4500,685.70,crypto.com
 12-16-202,BUY,LINK,53,664.40,crypto.com

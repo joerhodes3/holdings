@@ -32,7 +32,7 @@ def csv_to_events(csv_stream, header_style):
         reader = csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n')
         for row in reader:
             # go through each row in have csv and procees as BUY
-            temp_date_object = row["Date"] ####date(row.Date)
+            temp_date_object = row["Date"] ###date(row["Date"])
             things.buy(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
             if row["Operation"] != "HAVE":
                 print("Bad opperand")
@@ -41,8 +41,19 @@ def csv_to_events(csv_stream, header_style):
         return json.dumps(things.event)
         # TODO: save() to db
     elif header_style == "year":
-        # load things (have) and do stuff (sell,interest,lose)
-        pass
+        # TODO: load things (have) and do stuff (sell,interest,lose)
+        # with header -- Date,Operation,Asset,Amount,Price,Exchange
+        reader = csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n')
+        for row in reader:
+            # go through each row in have csv and procees as BUY
+            temp_date_object = row["Date"] ###date(row["Date"])
+            things.sell(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
+            if row["Operation"] != "HAVE":
+                print("Bad opperand")
+        print("------assets------"+json.dumps(things.stuff))
+        # dump out all BUY events in JSON
+        return json.dumps(things.event)
+        # TODO: save() to db
     elif header_type == "long":
         # expect odd format and unwind into buy/sell events
         pass
@@ -78,8 +89,22 @@ if __name__ == "__main__":
     csv_have = open("csv/have.csv", "r", encoding="utf-8")
     g = StringIO()
     for row in csv_have.readlines():
+        row.strip()
+        print("DEBUG: " + row)
         g.write(row)
         g.write("\n")
     csv_have.close()
     print("-----events------"+csv_to_events(g, "have"))
     #??? expectation ???
+    print("=================")
+    print("   sell")
+    print("=================")
+    csv_have = open("csv/2020.txt", "r", encoding="utf-8")
+    g = StringIO()
+    for row in csv_have.readlines():
+        row.strip()
+        print("DEBUG: " + row)
+        g.write(row)
+        g.write("\n")
+    csv_have.close()
+    print("-----events------"+csv_to_events(g, "year"))

@@ -46,8 +46,9 @@ class asset_items():
         event = []
         event.append({"date_sold": Date, "exchange_sold": Exchange})
         price_per_item_sold = Price / Amount
+        # TODO: Operation is SELL -- what about BUY/INTEREST/LOSE
         if Asset in self.stuff:
-            # founnd asset
+            # found asset
             bought_list = self.stuff[Asset]
             event_index = 0
             total = Amount
