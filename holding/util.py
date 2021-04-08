@@ -36,6 +36,7 @@ def csv_to_events(csv_stream, header_style):
             things.buy(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
             if row["Operation"] != "HAVE":
                 print("Bad opperand")
+        print("------assets------"+json.dumps(things.stuff))
         # dump out all BUY events in JSON
         return json.dumps(things.event)
         # TODO: save() to db
@@ -80,5 +81,5 @@ if __name__ == "__main__":
         g.write(row)
         g.write("\n")
     csv_have.close()
-    print(csv_to_events(g, "have"))
+    print("-----events------"+csv_to_events(g, "have"))
     #??? expectation ???

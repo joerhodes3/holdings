@@ -1,4 +1,5 @@
 from datetime import date
+from copy import deepcopy
 
 #from models import ....
 
@@ -36,8 +37,9 @@ class asset_items():
             self.stuff[Asset] = []
             self.stuff[Asset].append(transaction)
     
-        transaction.update({"asset": Asset, "action": "BUY"})
-        self.event.append(transaction)
+        t2 = deepcopy(transaction)
+        t2.update({"asset": Asset, "action": "BUY"})
+        self.event.append(t2)
 
     def sell(self,Date,Asset,Amount,Price,Exchange):
         # event is a list of dict -- one or more
@@ -51,7 +53,7 @@ class asset_items():
             total = Amount
             for item in bought_list and total != 0:
                 if total >= item["amount_bought"]:
-                    # item needs to be removed totally & update [event]
+                    # item needs to be removed totally & update [event] !! to include remembering buy info
                     total -= item["amount_bought"]
                     self.stuff[Asset].pop(0)
 
@@ -62,7 +64,7 @@ class asset_items():
                         # not Done, prepare next event
                         event.append({"date_sold": Date, "exchange_sold": Exchange})
                 else:
-                    # item just needs adjusting & update [event]
+                    # item just needs adjusting & update [event]!! to include remembering buy iinfo
                     old_price = self.stuff[Asset]["price_bought"]
                     old_amount = self.stuff[Asset]["amount_bought"]
                     new_amount = old_amount - total
