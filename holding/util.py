@@ -29,12 +29,15 @@ def csv_to_events(csv_stream, header_style):
     if header_style == "have":
         things = asset_items()
         #with header -- Date,Operation,Asset,Amount,Price,Exchange
-        reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
+        reader = csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n')
+        print(reader)
+        print("------2------")
         for row in reader:
+            print(row)
             # go through each row in have csv and procees as BUY
-            temp_date_object = row.Date ####date(row.Date)
-            things.buy(temp_date_object,row.Asset,row.Amount,row.Price,row.Exchange)
-            if row.Operation != "HAVE":
+            temp_date_object = row["Date"] ####date(row.Date)
+            things.buy(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
+            if row["Operation"] != "HAVE":
                 print("Bad opperand")
         # dump out all BUY events in JSON
         return json.dumps(thing.event)
@@ -79,7 +82,6 @@ if __name__ == "__main__":
     for row in csv_have.readlines():
         g.write(row)
         g.write("\n")
-        print(row)
-    print("------------")
+    csv_have.close()
     print(csv_to_events(g, "have"))
     #??? expectation ???
