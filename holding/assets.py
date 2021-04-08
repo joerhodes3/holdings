@@ -22,11 +22,12 @@ class asset_items():
                 if Date < item["date_bought"]:
                     index += 1
                 else:
-                    buy_list.insert(index, transaction)
+                    self.stuff[Asset].insert(index, transaction)
                     inserted = True
+                    break
             # if never <, then transaction is earliest
             if not inserted:
-                buy_list.insert(0, transaction)
+                self.stuff[Asset].insert(0, transaction)
 
             # save updated list with new transaction
             self.stuff[Asset] = buy_list
