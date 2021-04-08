@@ -1,8 +1,8 @@
-from sqlalchemy import Column, FLoat, String, DateTime, Bolean, ForeignKey
+from sqlalchemy import Column, FLoat, String, Date, Bolean, ForeignKey
 #from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-from datetime import datetime, timedelta
+from datetime import date
 
 Base = declarative_base()
 
@@ -19,7 +19,7 @@ class have(Base):
     # will need some routine at commit to make sure only legal symbols get in ;; bought
     sybmol = Column(String(10))
 
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(Date, default=date.today())
     price = Column(Float, default=0.0)
     quantity = Column(Float, default=0.0)
     
@@ -31,32 +31,12 @@ class have(Base):
         
 # NOTE: loss is just a sell of $0
 # sell -- querry have.symbol.ordered_by.date to find FIFO based sale -- oldest eligable until have.quanity satisfied
-class sold(Base):
-    """ SQLAlchemy Model for Assests sold based on what have """
+class event(Base):
+    """ SQLAlchemy Model for all events that have occured """
 
-    __tablename__ = "sold"
+    __tablename__ = "event"
     id = Column(Integer, primary_key=True)
   
-    # based on matching symbol find date/price -- fkey back to have()
-    bought = Column(Integer, ForeignKey(have.id))
+# save list from assets
     
-    # sold
-    date = Column(DateTime, default=datetime.utcnow)
-    price = Column(Float, default=0.0)
-    quantity = Column(Float, default=0.0)
-
-    # notes to help me
-    exchange_sold_on = Column(String)
-    
-class tax(Base):
-    """ SQLAlchemy Model for taxes to be paid """
-
-    __tablename__ = "tax"
-    id = Column(Integer, primary_key=True)
-  
-    # reason either b/c sold_fkey or interest -- have_fkey ;; a non NULL fkey tells you why
-    bought = Column(Integer, ForeignKey(have.id), nullable=True)
-    sold = Column(Integer, ForeignKey(sold.id), nullable=True)
-    
-    # short or long? timme held -- try to make long when possible as it is a tax savings
-    term = Column(String(5), default="short")
+# NOTE tax is just a querry of [event]
