@@ -5,6 +5,9 @@ from datetime import date
 from assets import asset_items
 
 
+# TEEMP: global
+things = asset_items()
+
 # StringIO to pass around CSV, BytesIO to write xlsx
 #f = open("myfile.txt", "r", encoding="utf-8")
 
@@ -27,29 +30,39 @@ out:
 '''
 def csv_to_events(csv_stream, header_style):
     if header_style == "have":
-        things = asset_items()
         #with header -- Date,Operation,Asset,Amount,Price,Exchange
         reader = csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n')
         for row in reader:
-            # go through each row in have csv and procees as BUY
-            temp_date_object = row["Date"] ###date(row["Date"])
-            things.buy(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
-            if row["Operation"] != "HAVE":
+            print("DEBUG: " + str(row))
+            # presceen incoming csv to make sure only legal Operations 
+            if not(row["Operation"] == "HAVE"):
                 print("Bad opperand")
+                exit(0)
+        for row in reader:
+            # go through and procees all Operations as BUY
+            temp_date_object = row["Date"] ###date(row["Date"])
+            things.ops(row["Operation"],temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
         print("------assets------"+json.dumps(things.stuff))
         # dump out all BUY events in JSON
         return json.dumps(things.event)
         # TODO: save() to db
     elif header_style == "year":
-        # TODO: load things (have) and do stuff (sell,interest,lose)
         # with header -- Date,Operation,Asset,Amount,Price,Exchange
         reader = csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n')
         for row in reader:
-            # go through each row in have csv and procees as BUY
-            temp_date_object = row["Date"] ###date(row["Date"])
-            things.sell(temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
-            if row["Operation"] != "HAVE":
-                print("Bad opperand")
+            print("DEBUG: " + str(row))
+            # presceen incoming csv to make sure only legal Operations 
+            if not(row["Operation"] == "BUY" or row["Operation"] == "SELL" or row["Operation"] == "INTEREST"):
+                print("Bad opperand for row" + str(row))
+                exit(0)
+        for row in reader:
+            # go through each row in have csv and procees as BUY/SELL/INEREST
+            temp_date_object = ()
+            try:
+                temp_date_object = row["Date"] ###date(row["Date"])
+            except:
+                print("  DEBUG -- fail to get Date for "+str(row.__dict__))
+            things.ops(temp_date_object,row["Asset"],float(row["Amount"]),float(row["Price"]),row["Exchange"])
         print("------assets------"+json.dumps(things.stuff))
         # dump out all BUY events in JSON
         return json.dumps(things.event)
@@ -90,20 +103,18 @@ if __name__ == "__main__":
     g = StringIO()
     for row in csv_have.readlines():
         row.strip()
-        print("DEBUG: " + row)
         g.write(row)
         g.write("\n")
     csv_have.close()
     print("-----events------"+csv_to_events(g, "have"))
     #??? expectation ???
     print("=================")
-    print("   sell")
+    print("   year")
     print("=================")
     csv_have = open("csv/2020.txt", "r", encoding="utf-8")
     g = StringIO()
     for row in csv_have.readlines():
         row.strip()
-        print("DEBUG: " + row)
         g.write(row)
         g.write("\n")
     csv_have.close()

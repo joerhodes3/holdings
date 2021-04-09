@@ -42,32 +42,33 @@ class asset_items():
         self.event.append(t2)
 
     def sell(self,Date,Asset,Amount,Price,Exchange):
-        # event is a list of dict -- one or more
         event = []
         event.append({"date_sold": Date, "exchange_sold": Exchange})
         price_per_item_sold = Price / Amount
-        # TODO: Operation is SELL -- what about BUY/INTEREST/LOSE
         if Asset in self.stuff:
             # found asset
             bought_list = self.stuff[Asset]
             event_index = 0
             total = Amount
-            for item in bought_list and total != 0:
-                if total >= item["amount_bought"]:
-                    # item needs to be removed totally & update [event] !! to include remembering buy info
-                    total -= item["amount_bought"]
+            for item in bought_list:
+                if total >= float(item["amount_bought"]):
+                    # item needs to be removed totally & update [event]
+                    total -= float(item["amount_bought"])
                     self.stuff[Asset].pop(0)
 
-                    new_price = price_per_item_sold * item["amount_bought"]
-                    event[event_index].update({"asset": Asset, "action": "SELL"},{"amount_sold": item["amount_bought"], "price_sold": new_price},{"term": "short"}, item)
+                    new_price = price_per_item_sold * float(item["amount_bought"])
+                    item.update({"asset": Asset, "action": "SELL"})
+                    item.update({"amount_sold": item["amount_bought"], "price_sold": new_price})
+                    item.update({"term": "short"})
+                    event[event_index].update(item)
                     event_index += 1
                     if total != 0:
                         # not Done, prepare next event
                         event.append({"date_sold": Date, "exchange_sold": Exchange})
                 else:
-                    # item just needs adjusting & update [event]!! to include remembering buy iinfo
-                    old_price = self.stuff[Asset]["price_bought"]
-                    old_amount = self.stuff[Asset]["amount_bought"]
+                    # item just needs adjusting & update [event]
+                    old_price = float(self.stuff[Asset]["price_bought"])
+                    old_amount = float(self.stuff[Asset]["amount_bought"])
                     new_amount = old_amount - total
                     new_price = (old_price / old_amount) * new_amount
                     total_sold = total
@@ -76,14 +77,37 @@ class asset_items():
                     self.stuff[Asset]["price_bought"] = new_price
                     self.stuff[Asset]["amount_bought"] = new_amount
 
-                    event[event_index].update({"asset": Asset, "action": "SELL"},{"amount_sold": total_sold, "price_sold": price_sold},{"term": "short"},item)
+                    item.update({"asset": Asset, "action": "SELL"})
+                    item.update({"amount_sold": total_sold, "price_sold": price_sold})
+                    item.update({"term": "short"})
+                    event[event_index].update(item)
                     event_index += 1
 
                     self.event.append(event)
-            if total != 0:
+
+                if total == 0:
+                    break
+
+            if total < 0:
                 print("Error -- more to be sold than have")
+                exit(0)
         else:
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
+
+    # ops -- what about HAVE/BUY/SELL/INTEREST/LOSE
+    def ops(self,Operation,Date,Asset,Amount,Price,Exchange):
+        if Operation == "HAVE" or Operation == "BUY":
+            buy(self,Date,Asset,Amount,Price,Exchange)
+        elif Operation == "INTEREST":
+            #TODO: update event
+            buy(self,Date,Asset,Amount,Price,Exchange)
+        elif Operation == "SELL":
+            sell(self,Date,Asset,Amount,Price,Exchange)
+        elif Operation == "LOSE":
+            sell(self,Date,Asset,Amount,0,Exchange)
+        else:
+            print("Unknown Operation: " + Operation)
+            exit(0)
 
     # TODO: load/store to ineract with db through models -- .save()
