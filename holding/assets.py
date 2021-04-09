@@ -95,17 +95,21 @@ class asset_items():
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
 
-    # ops -- what about HAVE/BUY/SELL/INTEREST/LOSE
-    def ops(self,Operation,Date,Asset,Amount,Price,Exchange):
+    # ops -- excute from HAVE/BUY/SELL/INTEREST/LOSE
+    def operands(self,Operation,Date,Asset,Amount,Price,Exchange):
+        print("  DEBUG: Operation: "+ Operation)
         if Operation == "HAVE" or Operation == "BUY":
-            buy(self,Date,Asset,Amount,Price,Exchange)
+            print("  DEBUG: BUY")
+            self.buy(Date,Asset,Amount,Price,Exchange)
         elif Operation == "INTEREST":
+            print("  DEBUG: INTEREST")
             #TODO: update event
-            buy(self,Date,Asset,Amount,Price,Exchange)
+            self.buy(Date,Asset,Amount,Price,Exchange)
         elif Operation == "SELL":
-            sell(self,Date,Asset,Amount,Price,Exchange)
+            print("  DEBUG: SELL")
+            self.sell(Date,Asset,Amount,Price,Exchange)
         elif Operation == "LOSE":
-            sell(self,Date,Asset,Amount,0,Exchange)
+            self.sell(Date,Asset,Amount,0.0,Exchange)
         else:
             print("Unknown Operation: " + Operation)
             exit(0)
