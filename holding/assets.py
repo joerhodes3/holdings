@@ -15,11 +15,12 @@ class asset_items():
     def buy(self,Date,Asset,Amount,Price,Exchange):
         transaction = {"date_bought": Date, "amount_bought": Amount, "price_bought": Price, "exchange_bought": Exchange}
         if Asset in self.stuff:
-            # asset exists -- sort by purchase date to make FIFO
+            # asset exists
             buy_list = self.stuff[Asset]
             index = 0
             inserted = False
             for item in buy_list:
+                # sort -- currently newest, mean for oldest fist -- FIFO!!!!
                 if Date < item["date_bought"]:
                     index += 1
                 else:
@@ -67,18 +68,21 @@ class asset_items():
                         event.append({"date_sold": Date, "exchange_sold": Exchange})
                 else:
                     # item just needs adjusting & update [event]
-                    old_price = float(self.stuff[Asset]["price_bought"])
-                    old_amount = float(self.stuff[Asset]["amount_bought"])
-                    new_amount = old_amount - total
-                    new_price = (old_price / old_amount) * new_amount
+                    old_price = item["price_bought"]
+                    old_amount = item["amount_bought"]
+                    new_amount = float(old_amount) - total
+                    new_price = (float(old_price) / float(old_amount)) * new_amount
                     total_sold = total
-                    total_price = (old_price / old_amount) * total_sold
+                    total_price = (float(old_price) / float(old_amount)) * total_sold
                     total = 0
-                    self.stuff[Asset]["price_bought"] = new_price
-                    self.stuff[Asset]["amount_bought"] = new_amount
+                    # update item????? original [asset] -- howto find/update?
+                    item["price_bought"] = new_price
+                    item["amount_bought"] = new_amount
+                    self.stuff[Asset][event_index]["price_bought"] = item["price_bought"]
+                    self.stuff[Asset][event_index]["amount_bought"] = item["amount_bought"]
 
                     item.update({"asset": Asset, "action": "SELL"})
-                    item.update({"amount_sold": total_sold, "price_sold": price_sold})
+                    item.update({"amount_sold": total_sold, "price_sold": total_price})
                     item.update({"term": "short"})
                     event[event_index].update(item)
                     event_index += 1
@@ -97,16 +101,12 @@ class asset_items():
 
     # ops -- excute from HAVE/BUY/SELL/INTEREST/LOSE
     def operands(self,Operation,Date,Asset,Amount,Price,Exchange):
-        print("  DEBUG: Operation: "+ Operation)
         if Operation == "HAVE" or Operation == "BUY":
-            print("  DEBUG: BUY")
             self.buy(Date,Asset,Amount,Price,Exchange)
         elif Operation == "INTEREST":
-            print("  DEBUG: INTEREST")
             #TODO: update event
             self.buy(Date,Asset,Amount,Price,Exchange)
         elif Operation == "SELL":
-            print("  DEBUG: SELL")
             self.sell(Date,Asset,Amount,Price,Exchange)
         elif Operation == "LOSE":
             self.sell(Date,Asset,Amount,0.0,Exchange)

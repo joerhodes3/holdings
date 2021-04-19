@@ -6,14 +6,14 @@ from copy import deepcopy
 from assets import asset_items
 
 
-# TEEMP: global
+# TEMP: global
 things = asset_items()
 
 # StringIO to pass around CSV, BytesIO to write xlsx
 #f = open("myfile.txt", "r", encoding="utf-8")
 
 # prarse incoming csv into series of [operations]
-#  - have is jst a series of buy
+#  - have is just a series of buy
 #  - a given year -- say 2020 -- can "have buy, sell, interest, lose"
 #    + a "buy" seaches for right to store in [assest] -- built in OOP
 #    + a sell remove bought item[s] from [asset] and makes an [event] line
@@ -27,7 +27,7 @@ in:
   - howto parse file into ops (header_style)
   
 out:
-  - a list of operations in JSON format
+  - assests, events in JSON format [str, str]
 '''
 def csv_to_events(csv_stream, header_style):
     if header_style == "have":
@@ -41,20 +41,17 @@ def csv_to_events(csv_stream, header_style):
                 exit(0)
         reader = deepcopy(csv_reader)
         for row in reader:
-            print("DEBUG: " + str(row))
             # go through and procees all Operations as BUY
             temp_date_object = row["Date"] ###date(row["Date"])
             things.operands(row["Operation"],temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
-        print("------assets------"+json.dumps(things.stuff))
         # dump out all BUY events in JSON
-        return json.dumps(things.event)
+        return json.dumps(things.stuff, indent=2, sort_keys=True),json.dumps(things.event, indent=2, sort_keys=True)
         # TODO: save() to db
     elif header_style == "year":
         # with header -- Date,Operation,Asset,Amount,Price,Exchange
         csv_reader = list(csv.DictReader(StringIO(csv_stream.getvalue()), lineterminator='\n'))
         reader = deepcopy(csv_reader)
         for row in reader:
-            print("DEBUG: " + str(row))
             # prescreen incoming csv to make sure only legal Operations 
             if not(row["Operation"] == "BUY" or row["Operation"] == "SELL" or row["Operation"] == "INTEREST"):
                 print("Bad opperand for row" + str(row))
@@ -68,9 +65,8 @@ def csv_to_events(csv_stream, header_style):
             except:
                 print("  DEBUG -- fail to get Date for "+str(row.__dict__))
             things.operands(row["Operation"],temp_date_object,row["Asset"],float(row["Amount"]),float(row["Price"]),row["Exchange"])
-        print("------assets------"+json.dumps(things.stuff))
         # dump out all BUY events in JSON
-        return json.dumps(things.event)
+        return json.dumps(things.stuff, indent=2, sort_keys=True),json.dumps(things.event, indent=2, sort_keys=True)
         # TODO: save() to db
     elif header_type == "long":
         # expect odd format and unwind into buy/sell events
@@ -104,23 +100,25 @@ def csv_to_events(csv_stream, header_style):
 if __name__ == "__main__":
     # execute only if run as a script -- is like a test
 
-    csv_have = open("csv/have.csv", "r", encoding="utf-8")
+    csv_have = open("csv/have.csv", mode="r", encoding="utf-8-sig")
     g = StringIO()
     for row in csv_have.readlines():
         row.strip()
         g.write(row)
         g.write("\n")
     csv_have.close()
-    print("-----events------"+csv_to_events(g, "have"))
+    assets,events = csv_to_events(g, "have")
+    print("--------assests---------"+assets+"-----events------"+events)
     #??? expectation ???
     print("=================")
     print("   year")
     print("=================")
-    csv_have = open("csv/2020.txt", "r", encoding="utf-8")
+    csv_have = open("csv/2020.txt", mode="r", encoding="utf-8-sig")
     g = StringIO()
     for row in csv_have.readlines():
         row.strip()
         g.write(row)
         g.write("\n")
     csv_have.close()
-    print("-----events------"+csv_to_events(g, "year"))
+    assets,events = csv_to_events(g, "year")
+    print("--------assests---------"+assets+"-----events------"+events)
