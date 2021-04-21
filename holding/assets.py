@@ -56,11 +56,15 @@ class asset_items():
                     self.stuff[Asset].pop(0)
 
                     new_price = price_per_item_sold * float(item["amount_bought"])
-                    item.update({"asset": Asset, "action": "SELL"})
-                    item.update({"amount_sold": item["amount_bought"], "price_sold": new_price})
-                    item.update({"term": "short"})
-                    event[event_index].update(item)
+
+                    # deepcopy for use only in [events] not in [assets]
+                    t2 = deepcopy(item)
+                    t2.update({"asset": Asset, "action": "SELL"})
+                    t2.update({"amount_sold": item["amount_bought"], "price_sold": new_price})
+                    t2.update({"term": "short"})
+                    event[event_index].update(t2)
                     event_index += 1
+
                     if total != 0:
                         # not Done, prepare next event
                         event.append({"date_sold": Date, "exchange_sold": Exchange})
