@@ -108,8 +108,9 @@ if __name__ == "__main__":
         g.write("\n")
     csv_have.close()
     assets,events = csv_to_events(g, "have")
-    print("--------assests---------"+assets+"-----events------"+events)
-    #??? expectation ???
+    ###print("--------assests---------"+assets+"-----events------"+events)
+    #expectation
+    things.event = [] # TEMP reset of events, so I just see year
     print("=================")
     print("   year")
     print("=================")
@@ -121,4 +122,5 @@ if __name__ == "__main__":
         g.write("\n")
     csv_have.close()
     assets,events = csv_to_events(g, "year")
-    print("--------assests---------"+assets+"-----events------"+events)
+    ###print("--------assests---------"+assets+"-----events------"+events)
+    print(events)

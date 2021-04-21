@@ -18,19 +18,17 @@ class asset_items():
             # asset exists
             buy_list = self.stuff[Asset]
             index = 0
-            inserted = False
             for item in buy_list:
                 # sort -- currently newest, mean for oldest fist -- FIFO!!!!
-                if Date < item["date_bought"]:
+                # find index
+                 if Date < item["date_bought"]:
+                    # incoming earlier, insert before here
+                     break
+                 elif Date > item["date_bought"]:
+                    # incoming date later -- keep gwalking
                     index += 1
-                else:
-                    self.stuff[Asset].insert(index, transaction)
-                    inserted = True
-                    break
-            # if never <, then transaction is earliest
-            if not inserted:
-                self.stuff[Asset].insert(0, transaction)
-
+            # insert once
+            buy_list.insert(index, transaction)
             # save updated list with new transaction
             self.stuff[Asset] = buy_list
         else:
@@ -58,11 +56,15 @@ class asset_items():
                     self.stuff[Asset].pop(0)
 
                     new_price = price_per_item_sold * float(item["amount_bought"])
-                    item.update({"asset": Asset, "action": "SELL"})
-                    item.update({"amount_sold": item["amount_bought"], "price_sold": new_price})
-                    item.update({"term": "short"})
-                    event[event_index].update(item)
+
+                    # deepcopy for use only in [events] not in [assets]
+                    t2 = deepcopy(item)
+                    t2.update({"asset": Asset, "action": "SELL"})
+                    t2.update({"amount_sold": item["amount_bought"], "price_sold": new_price})
+                    t2.update({"term": "short"})
+                    event[event_index].update(t2)
                     event_index += 1
+
                     if total != 0:
                         # not Done, prepare next event
                         event.append({"date_sold": Date, "exchange_sold": Exchange})
@@ -70,21 +72,24 @@ class asset_items():
                     # item just needs adjusting & update [event]
                     old_price = item["price_bought"]
                     old_amount = item["amount_bought"]
+                    
                     new_amount = float(old_amount) - total
                     new_price = (float(old_price) / float(old_amount)) * new_amount
+                    
                     total_sold = total
                     total_price = (float(old_price) / float(old_amount)) * total_sold
                     total = 0
-                    # update item????? original [asset] -- howto find/update?
-                    item["price_bought"] = new_price
-                    item["amount_bought"] = new_amount
-                    self.stuff[Asset][event_index]["price_bought"] = item["price_bought"]
-                    self.stuff[Asset][event_index]["amount_bought"] = item["amount_bought"]
-
-                    item.update({"asset": Asset, "action": "SELL"})
-                    item.update({"amount_sold": total_sold, "price_sold": total_price})
-                    item.update({"term": "short"})
-                    event[event_index].update(item)
+                    
+                    # update item in original [asset]
+                    self.stuff[Asset][event_index]["price_bought"] = new_price
+                    self.stuff[Asset][event_index]["amount_bought"] = new_amount
+                    
+                    # deepcopy for use only in [events] not in [assets]
+                    t2 = deepcopy(item)
+                    t2.update({"asset": Asset, "action": "SELL"})
+                    t2.update({"amount_sold": total_sold, "price_sold": total_price})
+                    t2.update({"term": "short"})
+                    event[event_index].update(t2)
                     event_index += 1
 
                     self.event.append(event)
