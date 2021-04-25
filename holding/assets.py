@@ -11,6 +11,8 @@ class asset_items():
         self.stuff = {}
         # event is a list of dict -- one or more things happened
         self.event = []
+        # tax is a list of dict -- not the BUY, only stuff to report to IRS
+        self.tax = []
 
     def buy(self,Date,Asset,Amount,Price,Exchange):
         transaction = {"date_bought": Date, "amount_bought": Amount, "price_bought": Price, "exchange_bought": Exchange}
@@ -38,14 +40,12 @@ class asset_items():
     
         t2 = deepcopy(transaction)
         t2.update({"asset": Asset, "action": "BUY"})
-        ##### for tax, don't worry about BUY
-        #####self.event.append(t2)
+        self.event.append(t2)
 
     def sell(self,Date,Asset,Amount,Price,Exchange):
         if Asset in self.stuff:
             # found asset
             bought_list = self.stuff[Asset]
-            event_index = 0
             total = Amount
             for item in bought_list:
                 if total >= float(item["amount_bought"]):
@@ -60,12 +60,10 @@ class asset_items():
                     t2.update({"date_sold": Date, "exchange_sold": Exchange})
                     t2.update({"asset": Asset, "action": "SELL"})
                     t2.update({"amount_sold": item["amount_bought"], "price_sold": new_price})
-                    t2.update({"term": "short"})
+                    t2.update({"term": "short"}) # TODO -- be more agreesive about short vs long
                     self.event.append(t2)
+                    self.tax.append(t2)
 
-                    if total != 0:
-                        # not Done
-                        pass
                 else:
                     # item just needs adjusting & update [event]
                     old_price = item["price_bought"]
@@ -78,17 +76,18 @@ class asset_items():
                     total_price = (float(old_price) / float(old_amount)) * total_sold
                     total = 0
                     
-                    # update item in original [asset]
-                    self.stuff[Asset][event_index]["price_bought"] = new_price
-                    self.stuff[Asset][event_index]["amount_bought"] = new_amount
+                    # update item in original [asset] at HEAD of list
+                    self.stuff[Asset][0]["price_bought"] = new_price
+                    self.stuff[Asset][0]["amount_bought"] = new_amount
                     
                     # deepcopy for use only in [events] not in [assets]
                     t2 = deepcopy(item)
                     t2.update({"date_sold": Date, "exchange_sold": Exchange})
                     t2.update({"asset": Asset, "action": "SELL"})
                     t2.update({"amount_sold": total_sold, "price_sold": total_price})
-                    t2.update({"term": "short"})
+                    t2.update({"term": "short"}) # TODO -- be more agreesive about short vs long
                     self.event.append(t2)
+                    self.tax.append(t2)
 
                 if total == 0:
                     break
@@ -100,7 +99,7 @@ class asset_items():
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
 
-    # ops -- excute from HAVE/BUY/SELL/INTEREST/LOSE &  AIRDROP
+    # ops -- excute from HAVE/BUY/SELL/INTEREST/LOSE &  AIRDROP (tax event and then BUY)
     def operands(self,Operation,Date,Asset,Amount,Price,Exchange):
         if Operation == "HAVE" or Operation == "BUY":
             self.buy(Date,Asset,Amount,Price,Exchange)

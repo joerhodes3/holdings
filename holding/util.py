@@ -45,7 +45,7 @@ def csv_to_events(csv_stream, header_style):
             temp_date_object = row["Date"] ###date(row["Date"])
             things.operands(row["Operation"],temp_date_object,row["Asset"],row["Amount"],row["Price"],row["Exchange"])
         # dump out all BUY events in JSON
-        return json.dumps(things.stuff, indent=2, sort_keys=True),json.dumps(things.event, indent=2, sort_keys=True)
+        return json.dumps(things.stuff, indent=2, sort_keys=True),json.dumps(things.event, indent=2, sort_keys=True),json.dumps(things.tax, indent=2, sort_keys=True)
         # TODO: save() to db
     elif header_style == "year":
         # with header -- Date,Operation,Asset,Amount,Price,Exchange
@@ -66,7 +66,7 @@ def csv_to_events(csv_stream, header_style):
                 print("  DEBUG -- fail to get Date for "+str(row.__dict__))
             things.operands(row["Operation"],temp_date_object,row["Asset"],float(row["Amount"]),float(row["Price"]),row["Exchange"])
         # dump out all BUY events in JSON
-        return json.dumps(things.stuff, indent=2, sort_keys=True),json.dumps(things.event, indent=2, sort_keys=True)
+        return json.dumps(things.stuff, indent=2, sort_keys=True),json.dumps(things.event, indent=2, sort_keys=True),json.dumps(things.tax, indent=2, sort_keys=True)
         # TODO: save() to db
     elif header_type == "long":
         # expect odd format and unwind into buy/sell events
@@ -87,8 +87,43 @@ def csv_to_events(csv_stream, header_style):
 
 
 
-# TODO: output reports to files
-
+# TODO: convert JSON back to csv
+'''
+in:
+  - JSON string
+  - fname to output to
+  
+out:
+  - a csv (one transaction per line)
+'''
+def json_tax_to_csv(json_string, fname_out):
+    # Date Sold,Operation,Asset,Amount,Date Bought,Price Bought,Price Sold,Exchange Bought,Exchange Sold
+    # Amount,Asset,Date Acquired,Date Sold,Cost Basis,Exchange Bought,Exchange Sold
+    items = json.loads(json_string)
+    print("Amount,Asset,Date Acquired,Date Sold,Cost Basis,Proceeds -- Price Sold,Exchange Bought,Exchange Sold")
+    line = ""
+    for item in items:
+        ##print("  DEBUG "+str(item))
+        if item["action"] == "SELL":
+            line += str(item["amount_sold"])
+            line += ","
+            line += str(item["asset"])
+            line += ","
+            line += str(item["date_bought"])
+            line += ","
+            line += str(item["date_sold"])
+            line += ","
+            line += str(item["price_bought"])
+            line += ","
+            line += str(item["price_sold"])
+            line += ","
+            line += str(item["exchange_bought"])
+            line += ","
+            line += str(item["exchange_sold"])
+        elif item["action"] == "INTEREST":
+            pass
+        print(line)
+        line = ""
 
 
 
@@ -107,7 +142,7 @@ if __name__ == "__main__":
         g.write(row)
         g.write("\n")
     csv_have.close()
-    assets,events = csv_to_events(g, "have")
+    assets,events,tax = csv_to_events(g, "have")
     ###print("--------assests---------"+assets+"-----events------"+events)
     #expectation
     things.event = [] # TEMP reset of events, so I just see year
@@ -121,6 +156,6 @@ if __name__ == "__main__":
         g.write(row)
         g.write("\n")
     csv_have.close()
-    assets,events = csv_to_events(g, "year")
+    assets,events,tax = csv_to_events(g, "year")
     ###print("--------assests---------"+assets+"-----events------"+events)
-    print(events)
+    json_tax_to_csv(tax, "2020_tax.csv")
