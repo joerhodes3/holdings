@@ -99,12 +99,21 @@ class asset_items():
             print("Error trying to sell non-existant asset " + Asset + ":")
             print("  " + event)
 
-    # ops -- excute from HAVE/BUY/SELL/INTEREST/LOSE &  AIRDROP (tax event and then BUY)
+    def interest(self,Date,Asset,Amount,Price,Exchange):
+                    t2 = {}
+                    t2.update({"date_sold": Date, "exchange_bought": Exchange})
+                    t2.update({"asset": Asset, "action": "INTEREST"})
+                    t2.update({"amount_sold": Amount, "price_sold": Price})
+                    t2.update({"term": "short"}) # all interest is short term
+                    self.event.append(t2)
+                    self.tax.append(t2)
+
+    # ops -- excute from HAVE/BUY/SELL/INTEREST/LOSE &  AIRDROP (like INTEREST but diiferent [assest] to BUY)
     def operands(self,Operation,Date,Asset,Amount,Price,Exchange):
         if Operation == "HAVE" or Operation == "BUY":
             self.buy(Date,Asset,Amount,Price,Exchange)
         elif Operation == "INTEREST":
-            #TODO: update event
+            self.interest(Date,Asset,Amount,Price,Exchange)
             self.buy(Date,Asset,Amount,Price,Exchange)
         elif Operation == "SELL":
             self.sell(Date,Asset,Amount,Price,Exchange)

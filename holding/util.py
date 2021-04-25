@@ -121,7 +121,20 @@ def json_tax_to_csv(json_string, fname_out):
             line += ","
             line += str(item["exchange_sold"])
         elif item["action"] == "INTEREST":
-            pass
+            line += str(item["amount_sold"])
+            line += ","
+            line += str(item["asset"])
+            line += ","
+            line += "-INTEREST-"
+            line += ","
+            line += str(item["date_sold"])
+            line += ","
+            line += "0"
+            line += ","
+            line += str(item["price_sold"])
+            line += ","
+            line += str(item["exchange_bought"])
+            line += ","
         print(line)
         line = ""
 
